@@ -9,6 +9,7 @@
 | 技能 | 是什么 | 版本 |
 |---|---|---|
 | [bilingual-annotated-reader](skills/bilingual-annotated-reader/) | 把一篇英文长文做成「左原文、右译文、逐句联动」的可读网页；配术语卡、译者注、图注解读，产出单个可离线打开的 HTML | v2.1.0 |
+| [modern-web-guidance](skills/modern-web-guidance/) | 给 agent 的现代 Web 平台最佳实践检索库：250 特性 / 203 用例，本地索引、检索不联网；含 DSH 接线补丁与遥测关闭 | v1.0.0（DSH 补丁 1） |
 
 更多技能会陆续放进来。
 
@@ -47,5 +48,8 @@ cp -R skills/bilingual-annotated-reader ~/.agents/skills/
 
 ## License
 
-代码与模板以 [MIT](LICENSE) 发布。README 里的截图取自公开的精读成品页，
+本仓库自身的脚本与模板以 [MIT](LICENSE) 发布。README 里的截图取自公开的精读成品页，
 其中原文、配图与商标的版权属于原文章与原作者，仅用于展示工具效果。
+
+各技能沿用其上游许可：`modern-web-guidance` 的软件代码为 **Apache-2.0**、`guides/` 下的文档为
+**CC-BY 4.0**（见该技能目录的 `LICENSE` 与上游仓库）。
