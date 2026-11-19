@@ -17,8 +17,8 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SKILL = path.resolve(HERE, "..");
 const TPL = path.join(SKILL, "templates");
-const VERSION = "2.1.0";
-const TOOLS = ["check-content.mjs", "check-tags.mjs", "smoke.mjs", "shots.mjs", "chrome.mjs", "gate.mjs", "survey.mjs", "publish.mjs"];
+const VERSION = "2.3.0";
+const TOOLS = ["check-content.mjs", "check-tags.mjs", "smoke.mjs", "shots.mjs", "chrome.mjs", "gate.mjs", "survey.mjs", "publish.mjs", "inject-shell.mjs", "check-shell.mjs", "slim-media.py"];
 
 const argv = process.argv.slice(2);
 const has = (k) => argv.includes(k);

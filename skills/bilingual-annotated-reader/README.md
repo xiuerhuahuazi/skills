@@ -105,7 +105,11 @@ node tools/gate.mjs --shots
 # 4. 人工看完截图后登记确认
 node tools/gate.mjs --confirm "看完三张截图，可以交"
 
-# 5. 出两种交付形态（单文件 + cloud/）
+# 5. 图片瘦身（转 WebP + 按显示尺寸收敛，改的是 config/meta 的引用）
+python3 tools/slim-media.py --dry        # 先看表格；去掉 --dry 才落盘
+python3 tools/slim-media.py --backup .bak
+
+# 6. 出两种交付形态（单文件 + cloud/）
 node tools/publish.mjs
 ```
 
@@ -150,7 +154,7 @@ README.md                本文件（人读这个）
 CHANGELOG.md             版本与改动
 references/              抓取、数据契约、页面规范、QA、踩坑、反馈、案例、媒体
 templates/               页面模板、样式、构建脚本
-tools/                   脚手架、构建闸门、冒烟、截图、抓取勘察、发布
+tools/                   脚手架、构建闸门、冒烟、截图、抓取勘察、发布、图片瘦身
 docs/img/                README 里的示例图
 ```
 
@@ -165,10 +169,11 @@ docs/img/                README 里的示例图
 `references/05-pitfalls.md` 记了实际踩过的坑：headless 最小窗口造成的「移动端溢出」假象、CSS 过渡在 virtual-time 下不推进、负 margin 切片超过 ~20000px 白屏、`String.replace` 的 `$` 语义、defuddle 丢图吞表、Chrome 路径写死导致假失败……
 
 视频与云端相关的坑单列在 `references/08-media-cloud.md`：Safari 对 data URI 视频不稳（要用 Blob）、base64 与 HTTP 缓存互斥、Range/206、海报懒加载。
+图片体积也在这份文档的 §0：单图 ≤ 260 KB、单页 ≤ 1 MB，超了就跑 `slim-media.py`；PNG 只重编码不降尺寸会变大，动图别转 animated WebP。
 
 ## 版本与反馈
 
-当前 **v2.1.0**（2026-11-12）。改动记录见 [CHANGELOG.md](CHANGELOG.md)；收到反馈怎么进下一版见 [references/06-feedback.md](references/06-feedback.md)。
+当前 **v2.3.0**（2026-11-19）。改动记录见 [CHANGELOG.md](CHANGELOG.md)；收到反馈怎么进下一版见 [references/06-feedback.md](references/06-feedback.md)。
 
 ## 示例与版权
 

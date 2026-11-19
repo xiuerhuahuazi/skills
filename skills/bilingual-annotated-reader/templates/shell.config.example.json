@@ -1,0 +1,12 @@
+{
+  "siteUrl": "https://example.com/",
+  "brand": { "text": "example", "href": "/" },
+  "nav": [
+    { "text": "首页", "href": "/" },
+    { "text": "双语书架", "href": "/readers/", "current": true },
+    { "text": "技术手记", "href": "/notes/" },
+    { "text": "关于", "href": "/about/" }
+  ],
+  "accent": "#b0512b",
+  "dark": { "bg": "#15130f", "fg": "#efe9dd" }
+}

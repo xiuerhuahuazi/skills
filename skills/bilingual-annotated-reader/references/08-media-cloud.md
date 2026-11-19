@@ -5,6 +5,67 @@
 
 ---
 
+## 0. 图片瘦身（发布前必做）
+
+> 精读页的图常常是「原始尺寸 + 平台默认质量」直接落到 `assets/`：3840px 宽的 PNG 显示在 1340px 的栏里，
+> 一张 344 KB，一页四张就 1.3 MB。读者的感受是"这页打不开"，不是"画质真好"。**先瘦身，再上线。**
+
+### 预算
+
+| 项 | 目标 | 超了怎么办 |
+|---|---|---|
+| 单张静态图 | ≤ 260 KB（正常落在 20–150 KB） | 降尺寸 → 降 quality → 换 WebP |
+| 单页图片合计 | ≤ 1 MB | 回头查是不是有原始尺寸 PNG |
+| 单文件 `index.html` | ≤ 3 MB（图多时） | 同左；视频另算 |
+| 动图 | ≤ 300 KB / 段 | 帧率 12、色板 128、宽度 1200 |
+
+### 一条命令
+
+```bash
+python3 tools/slim-media.py            # 当前项目：转 WebP + 收敛尺寸 + 回写 config/meta
+python3 tools/slim-media.py --all ..   # 目录下所有精读项目
+python3 tools/slim-media.py --dry      # 只出表格，不落盘
+python3 tools/slim-media.py --backup .bak   # 动手前备份 assets
+python3 tools/slim-media.py --gif      # 顺带优化动图（需 ffmpeg，FFMPEG= 可指定）
+```
+
+它只处理 `data/config.json` 的 `figureAssets`（still / anim）与 `data/meta.json` 的 `cover.asset`，
+把 jpg / png 转成同名 `.webp` 并回写这两个 JSON；原图留在 `assets/` **不动**，想回滚就把 JSON 改回去。
+转换后要重新 `node tools/publish.mjs`，站点侧再 `import_readers.py --force`。
+
+依赖 Pillow（`python3 -m venv .venv && .venv/bin/pip install pillow`）；缺依赖时退出 2 并给安装命令。
+
+### 参数为什么是这些
+
+- **尺寸**：照片（jpg 来）长边 ≤ 1600、图稿（png 来）长边 ≤ 2000。正文栏宽约 1340px，2 倍屏也就 2680——
+  2000 已经够放大看小字，再往上只是给 CDN 交学费。
+- **质量阶梯**：图稿 84/80/76，照片 78/74/70，命中 ≤ 260 KB 就停；纹理密的插画（彩铅、纸张噪点）本来就吃字节，
+  降到 70 以下才开始看出糊。
+- **收益门槛**：转完比原图小不到 8% 就不换名字（避免为几个 KB 改一版 `config.json`）。
+- **格式**：WebP。同尺寸下比 JPEG 小 3–5 倍、比调色板 PNG 更干净；`build.mjs` 的 MIME 表已含 `image/webp`，
+  单文件内嵌不会出 `data:undefined`。
+
+### 实测（2026-11-19，15 篇 79 张图）
+
+| 图 | 原 | 处理后 | PSNR |
+|---|---|---|---|
+| anthropic-scm fig6 (3840×4684 RGBA) | 343 KB PNG | 68 KB WebP q80 | 45.2 dB |
+| fable-multi-agent fig5 (2560×1336) | 709 KB PNG | 69 KB WebP q80 | 38.6 dB |
+| harness vid1 (1920×1080) | 399 KB PNG | 31 KB WebP q80 | 43.0 dB |
+| grok fig1 (1400×933 插画) | 388 KB JPEG | 257 KB WebP q78 | 34.7 dB |
+| claude-subagent-loop fig1.gif (93 帧) | 820 KB GIF | 122 KB GIF（12fps/1200px/128 色） | 肉眼无差 |
+
+整站精读图片 **13.6 MB → 4.5 MB（−67%）**；单篇最重一页 1.3 MB → 0.82 MB。
+
+### 坑
+
+1. **PNG 只重编码不降尺寸会变大**：3840px 的 PNG 用 sips / Pillow 重存，294 KB → 347 KB。先降尺寸。
+2. **调色板量化对线稿很好、对照片一般**：图稿 294 KB → 60 KB 肉眼无损；照片型 PNG 不如直接 WebP。
+3. **JPEG 重编码对纹理密的插画几乎无效**：388 KB 的彩铅插画降到 q74 只剩 306 KB，PSNR 已掉到 33 dB——换 WebP，别硬压。
+4. **动图别转 animated WebP**：Pillow / ffmpeg 逐帧全编码，820 KB 的 GIF 会变成 3.3 MB。要么用 ffmpeg 重做 GIF 调色板（推荐），
+   要么保持原样。
+5. **改完必须重建**：只换 `assets/` 里文件、不跑 `publish.mjs`，单文件 `index.html` 里还是旧的 base64。
+
 ## 1. 先决定视频怎么放
 
 | 方案 | 单文件 | 体积（3 段 60 s 动画，1280 宽） | 离线 | 适合 |

@@ -5,7 +5,7 @@ description: 把一篇英文长文（论文、博客、官方文档）做成「�
 
 # 双语对照精读页
 
-> 当前版本 **v2.1.0**（2026-11-12）。改动记录见 `CHANGELOG.md`；收到反馈怎么进下一版见 `references/06-feedback.md`。
+> 当前版本 **v2.3.0**（2026-11-19）。改动记录见 `CHANGELOG.md`；收到反馈怎么进下一版见 `references/06-feedback.md`。
 
 ## 这套 skill 交付的不是"译文"，是"一页能读完的东西"
 
@@ -36,7 +36,7 @@ description: 把一篇英文长文（论文、博客、官方文档）做成「�
 | 2 数据契约 | `SPEC.md` + 并行分工 | 定 JSON schema，派两名 teammate 分别做外链与术语/图 | `references/02-data-contract.md` |
 | 3 逐句对照 | `data/part-*.json` | 手动切句、逐句译；同步埋链接/术语/译注标记 | `references/02-data-contract.md` |
 | 4 页面 | `src/{template,style,app}` | 双栏 grid、句级联动、三类悬停卡、数据表/代码块/图、题图（`meta.cover`）、视频点播（内嵌/外置） | `references/03-page-spec.md` |
-| 5 构建自检 | `index.html` + **`QA.md`** | **一条命令 `node tools/gate.mjs`**：构建 → 保真/闭合/结构 → 标签 → 冒烟，写证据；截图人眼过一遍。交付两种形态用 `node tools/publish.mjs`（单文件 + `cloud/`） | `references/04-qa.md`、`08-media-cloud.md` |
+| 5 构建自检 | `index.html` + **`QA.md`** | **一条命令 `node tools/gate.mjs`**：构建 → 保真/闭合/结构 → 标签 → 冒烟，写证据；截图人眼过一遍。交付两种形态用 `node tools/publish.mjs`（单文件 + `cloud/`）。**发布前先跑 `python3 tools/slim-media.py`**：素材转 WebP + 按显示尺寸收敛 | `references/04-qa.md`、`08-media-cloud.md` |
 | 6 独立审校 | `QA-review.md` → 修订 | 派 fresh subagent 只挑错不改文件；改完重跑 gate；确认后 `gate.mjs --confirm "…"` | `references/04-qa.md` |
 
 ## 三条不可妥协的质量线
@@ -67,7 +67,7 @@ node <skill>/tools/scaffold.mjs <目标目录> --article <原文.md>
 node <skill>/tools/scaffold.mjs --refresh <项目目录>
 ```
 
-新建生成：`build.mjs` + `src/` 三件套 + `tools/` 八个脚本（含 `publish.mjs`）+ `data/skill.json`（记录 skill 版本）。
+新建生成：`build.mjs` + `src/` 三件套 + `tools/` 十一个脚本（含 `publish.mjs`、`inject-shell.mjs`、`check-shell.mjs`、`slim-media.py`）+ `data/skill.json`（记录 skill 版本）。
 **项目差异只进 `data/`**：`config.json`（术语正则、图片映射）、`meta.json`（标题/速览/译注/笔误）、
 `part-*.json`（逐句对照）、`links.json`、`glossary.json`、`figures.json`、`article.md`、`survey.json`。
 `src/` 与 `tools/` 是模板快照——**不要在项目里手改 tools**，改了用 `--refresh` 会丢；要改就改 skill 再刷新。
@@ -80,6 +80,16 @@ node tools/publish.mjs --no-cloud   # 只出单文件
 ```
 
 媒体标准（压缩参数、体积预算、Range/缓存、HLS 时机）见 `references/08-media-cloud.md`。
+
+**接进自己的站点**（给成品页加导航条 + 品牌 + 深色主题，不改精读页本身）：
+
+```bash
+node <skill>/tools/inject-shell.mjs <成品页.html> --config <站点配置.json>
+node <skill>/tools/check-shell.mjs        # 外壳自检：文档↔代码对齐 / 幂等 / 退出码 / 零外链 / 结构 / 深色覆盖
+```
+
+配置模板 `templates/shell.config.example.json`；注入点、写死浅色清单、幂等与已知坑见 `references/09-site-shell.md`。
+`--check` 现在会认出**配置漂移**（外壳还在、但配置改过了），别再把「已注入」当成「配置是新的」。
 
 ## 反模式（做到就是白干）
 
@@ -95,6 +105,8 @@ node tools/publish.mjs --no-cloud   # 只出单文件
 - **在项目里手改 `tools/`**（副本会分叉，skill 修了也传不下去）。
 - **把视频 base64 塞进要上云的页面**。base64 只适合单文件分发：+37% 体积、无法缓存、无法 Range 拖动、首屏要解析整段。云端一律走 `cloud/` + 外置 `media/`。
 - **直接内嵌未压缩的 mp4**。先 `-crf 30 -tune animation -an -movflags +faststart`，8.8 MB 能压到 3.2 MB；不压就把单文件从 6 MB 抬到 14 MB。
+- **把 3840px 的原始 PNG 原样放进 `assets/`**。页面只显示一千多像素，多出来的像素全是下载时间：先 `python3 tools/slim-media.py`（转 WebP + 按显示尺寸收敛），实测图片体积能砍 55–85%。
+- **只压 quality 不收敛尺寸**。同一张图 3840px → 2000px 再编码，比「原尺寸低质量」又小又清楚；反过来 PNG 只降质量不降尺寸，重编码后经常**比原图还大**。
 - **跳过 gate 直接交**，或拿旧的 `QA.md` 当这次的证据。
 
 ## 反馈与版本
