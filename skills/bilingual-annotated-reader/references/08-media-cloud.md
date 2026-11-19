@@ -56,6 +56,7 @@ python3 tools/slim-media.py --gif      # 顺带优化动图（需 ffmpeg，FFMPE
 | claude-subagent-loop fig1.gif (93 帧) | 820 KB GIF | 122 KB GIF（12fps/1200px/128 色） | 肉眼无差 |
 
 整站精读图片 **13.6 MB → 4.5 MB（−67%）**；单篇最重一页 1.3 MB → 0.82 MB。
+（2026-11-19 更正：1.3→0.82 MB 的是 Grok 页；按 git 字节实测最重页为 harness-reader 1.83→0.28 MB，grok 1.36→0.84 仅排第 5。）
 
 ### 坑
 
