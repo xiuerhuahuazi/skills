@@ -289,7 +289,7 @@ function renderFigure(id) {
   }
   const media =
     '<div class="fig-media">' +
-    '<img class="still" src="' + stillUrl + '" loading="lazy" decoding="async" alt="' + esc(f.alt_en || id) + '">' +
+    '<img class="still" src="' + stillUrl + '"' + (IMAGE_MODE === "external" ? ' loading="lazy"' : "") + ' decoding="async" alt="' + esc(f.alt_en || id) + '">' +
     (animUrl ? '<img class="anim" src="' + animUrl + '" alt="' + esc(f.alt_en || id) + '" hidden>' : "") +
     (animUrl
       ? '<div class="fig-bar"><button data-act="still" class="on">静帧</button><button data-act="anim">动图</button></div>'

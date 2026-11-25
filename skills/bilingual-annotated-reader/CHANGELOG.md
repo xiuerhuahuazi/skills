@@ -1,3 +1,35 @@
+## [2.3.2] — 2026-11-25
+
+### Added
+
+- `references/03-page-spec.md` 新增 §4.1「单图卡 / 叠卡轮播」与 §4.2「点图之后去哪：提示词框 or 看图器」：
+  按图内容分流（有提示词进提示词框，无提示词只进看图器）、看图器独立成层与 Esc 分层、
+  方向键作用于最上层、单图隐藏箭头圆点、箭头只在左右 16% 以 0.75 透明度出现、叠卡主卡按图 `ar` 实时算尺寸与 14px 间距。
+- `references/05-pitfalls.md` 新增 35–37：按钮居中 + 固定比例造成上下空白（含 `ar` 数据核错）、侧卡百分比宽度被主卡压住、
+  硬切与键盘只切错层。
+- `SKILL.md` 反模式新增四条对应项。
+
+### Notes
+
+- 无工具/模板改动，不触发 gate 回归；来源是 2026-11-25 技术手记的图片呈现迭代（空白 → 重叠 → 硬切 → 单图控件 → 看图器键盘）。
+- 版本号 `2.3.1` → `2.3.2`（`scaffold.mjs` 的 `VERSION` 同步）。
+
+## [2.3.1] — 2026-11-20
+
+### Fixed
+
+- **正文图不再用 `loading="lazy"`（inline 模式）**：单文件交付里图片本来就是 data URI，lazy 只会让首屏与截图晚一拍。
+  `build.mjs` 现在只在 `IMAGE_MODE=external`（云端版）时才给 `<img class="still">` 加 `loading="lazy"`。
+  来源：2026-11-20 做 Anthropic《The components of agent memory》，15 张图在分区截图里全是空白。
+- **`shots.mjs` 补 `--run-all-compositor-stages-before-draw`**：截图一直带 `--force-prefers-reduced-motion`，
+  而页面 CSS 里有 `@media (prefers-reduced-motion:reduce){*{transition/animation:none!important}}`；
+  这个组合下，data URI 大图在 8s 虚拟时间预算内来不及上屏，截出空白。实测把预算提到 30s 能出图，但 31 张太慢；
+  加这个 flag 后 8s 稳定出图（同一页 110 KB 空白 → 432 KB 实图）。
+
+### Changed
+
+- 版本号 `2.3.0` → `2.3.1`（`scaffold.mjs` 的 `VERSION` 同步）。
+
 ## [2.3.0] — 2026-11-19
 
 ### Added

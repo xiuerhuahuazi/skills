@@ -5,7 +5,7 @@ description: 把一篇英文长文（论文、博客、官方文档）做成「�
 
 # 双语对照精读页
 
-> 当前版本 **v2.3.0**（2026-11-19）。改动记录见 `CHANGELOG.md`；收到反馈怎么进下一版见 `references/06-feedback.md`。
+> 当前版本 **v2.3.2**（2026-11-25）。改动记录见 `CHANGELOG.md`；收到反馈怎么进下一版见 `references/06-feedback.md`。
 
 ## 这套 skill 交付的不是"译文"，是"一页能读完的东西"
 
@@ -35,7 +35,7 @@ description: 把一篇英文长文（论文、博客、官方文档）做成「�
 | 1 四问确认 | 决议 | 见上表 | 本文 |
 | 2 数据契约 | `SPEC.md` + 并行分工 | 定 JSON schema，派两名 teammate 分别做外链与术语/图 | `references/02-data-contract.md` |
 | 3 逐句对照 | `data/part-*.json` | 手动切句、逐句译；同步埋链接/术语/译注标记 | `references/02-data-contract.md` |
-| 4 页面 | `src/{template,style,app}` | 双栏 grid、句级联动、三类悬停卡、数据表/代码块/图、题图（`meta.cover`）、视频点播（内嵌/外置） | `references/03-page-spec.md` |
+| 4 页面 | `src/{template,style,app}` | 双栏 grid、句级联动、三类悬停卡、数据表/代码块/图（单图卡或叠卡轮播、提示词框、看图器）、题图（`meta.cover`）、视频点播（内嵌/外置） | `references/03-page-spec.md` §4.1–4.2 |
 | 5 构建自检 | `index.html` + **`QA.md`** | **一条命令 `node tools/gate.mjs`**：构建 → 保真/闭合/结构 → 标签 → 冒烟，写证据；截图人眼过一遍。交付两种形态用 `node tools/publish.mjs`（单文件 + `cloud/`）。**发布前先跑 `python3 tools/slim-media.py`**：素材转 WebP + 按显示尺寸收敛 | `references/04-qa.md`、`08-media-cloud.md` |
 | 6 独立审校 | `QA-review.md` → 修订 | 派 fresh subagent 只挑错不改文件；改完重跑 gate；确认后 `gate.mjs --confirm "…"` | `references/04-qa.md` |
 
@@ -107,6 +107,10 @@ node <skill>/tools/check-shell.mjs        # 外壳自检：文档↔代码对齐
 - **直接内嵌未压缩的 mp4**。先 `-crf 30 -tune animation -an -movflags +faststart`，8.8 MB 能压到 3.2 MB；不压就把单文件从 6 MB 抬到 14 MB。
 - **把 3840px 的原始 PNG 原样放进 `assets/`**。页面只显示一千多像素，多出来的像素全是下载时间：先 `python3 tools/slim-media.py`（转 WebP + 按显示尺寸收敛），实测图片体积能砍 55–85%。
 - **只压 quality 不收敛尺寸**。同一张图 3840px → 2000px 再编码，比「原尺寸低质量」又小又清楚；反过来 PNG 只降质量不降尺寸，重编码后经常**比原图还大**。
+- **给容器定死比例再 `object-fit:contain`**。比例和图不一致的那一边必然留白；按当前图 `ar` 算容器高。
+- **叠卡侧卡按画布百分比写死宽度**。主卡一放大就压住侧卡，宽度要取两侧实际空隙。
+- **用 `visibility:hidden` 换卡**。看起来是硬切；用 `opacity` + `pointer-events:none`，位置尺寸上 0.5s 过渡。
+- **键盘只绑提示词框的当前组**。看图器打开后 ←/→ 会失效或改错层；方向键要作用于最上层。
 - **跳过 gate 直接交**，或拿旧的 `QA.md` 当这次的证据。
 
 ## 反馈与版本

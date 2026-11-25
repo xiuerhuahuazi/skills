@@ -86,8 +86,8 @@ function shotFile(name, doc, extra = "", w = W, h = H) {
   const profile = path.join(OUT, "_ch-" + name);
   try {
     run(["--headless=new","--no-sandbox","--disable-gpu","--disable-crash-reporter","--disable-breakpad",
-      "--hide-scrollbars","--force-prefers-reduced-motion","--allow-file-access-from-files",
-      `--window-size=${w},${h}`, "--virtual-time-budget=8000",
+      "--hide-scrollbars","--force-prefers-reduced-motion","--run-all-compositor-stages-before-draw","--allow-file-access-from-files",
+      `--window-size=${w},${h}`, "--virtual-time-budget=12000",
       "--user-data-dir=" + profile,
       "--screenshot=" + path.join(OUT, (extra || "s_") + name + ".png"),
       fileUrl(f)]);
